@@ -1,0 +1,28 @@
+
+module TrafficInterSection(input NS_Traffic, EW_Traffic, CLK, RST,
+                            output reg NS_TrafficColorYellowTrigger, EW_TrafficColorYellowTrigger);
+                            parameter s0 = 2'b00, s1 = 2'b01;
+                            reg [1:0] state = 2'b00;
+                            always @(posedge CLK) begin
+                                if(RST) begin
+                                state <= s0;
+                                 NS_TrafficColorYellowTrigger <= 1'b0; EW_TrafficColorYellowTrigger <= 1'b0;
+                                end
+                                else begin
+                                    case(state)
+                                    s0: begin
+                                     if(!NS_Traffic && EW_Traffic) begin
+                                     state <= s1;
+                                     NS_TrafficColorYellowTrigger <= 1'b1;
+                                     end
+                                     end
+                                     s1:begin
+                                     if(NS_Traffic && !EW_Traffic) begin
+                                     state <= 0;
+                                     EW_TrafficColorYellowTrigger <= 1'b1;
+                                     end
+                                     end
+                                    endcase
+                                     end
+                                     end
+endmodule

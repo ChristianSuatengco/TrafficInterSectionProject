@@ -1,0 +1,22 @@
+// Code your design here
+module trafficlight #(parameter M=9, N=4)
+  (input CLK, CurrentTrafficYellowTrigger, OppositeLightGreen
+   output reg [1:0] signal);
+  reg [N-1:0] ctr;
+  always @(posedge CLK)
+    if(!CurrentTrafficYellowTrigger) begin
+      ctr = 0;
+    end
+  else begin
+    if(ctr == M-1) begin
+    end
+    else begin
+    ctr <= ctr+1;
+    end
+  end
+  
+  always @(ctr)
+      
+  
+  
+endmodule

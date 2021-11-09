@@ -1,7 +1,10 @@
-// Code your design here
-module trafficlight #(parameter M=9, N=4)
+module trafficlight #(parameter M=15, N=4)
   (input CLK, CurrentTrafficYellowTrigger, OppositeLightGreen
-   output reg [1:0] signal);
+   output reg [1:0] signal
+   output reg OppositeGreenLightTrigger, CurrentYellowReset);
+  
+  /* make a loval parameter where green = 00, yellow = 01, red = 10
+  */
   reg [N-1:0] ctr;
   always @(posedge CLK)
     if(!CurrentTrafficYellowTrigger) begin
@@ -16,7 +19,16 @@ module trafficlight #(parameter M=9, N=4)
   end
   
   always @(ctr)
+    case(ctr)
+      1: begin // change to yellow
+      signal <= 01
+      end
+      12:begin // change to red
+      signal <= 10
+      end
+      15: begin// send green signal to other traffic light
+      OppositeGreenLightTrigger <= 1;
+      CurrentYellowReset <= 1;
+      end
+        
       
-  
-  
-endmodule

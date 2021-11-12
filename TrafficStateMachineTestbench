@@ -1,1 +1,32 @@
+module TrafficIntersection_TB;
+
+reg NS_Traffic, EW_Traffic, NSYellowReset, EWYellowReset, NSGreenReset, EWGreenReset, CLK, RST;
+wire NS_TrafficColorYellowTrigger, EW_TrafficColorYellowTrigger, NS_TrafficColorGreenTrigger, EW_TrafficColorGreenTrigger,CurrentState;
+
+TrafficInterSection DUT (.NS_Traffic(NS_Traffic),
+.EW_Traffic(EW_Traffic),
+.NSYellowReset(NSYellowReset),
+.EWYellowReset(EWYellowReset),
+.NSGreenReset(NSGreenReset),
+.EWGreenReset(EWGreenReset),
+.CLK(CLK),
+.RST(RST),
+.NS_TrafficColorYellowTrigger(NS_TrafficColorYellowTrigger),
+.EW_TrafficColorYellowTrigger(EW_TrafficColorYellowTrigger),
+.NS_TrafficColorGreenTrigger(NS_TrafficColorGreenTrigger),
+.EW_TrafficColorGreenTrigger(EW_TrafficColorGreenTrigger),
+.CurrentState(CurrentState));
+
+parameter ClockPeriod = 10;
+initial CLK=0;
+always #(ClockPeriod/2) CLK = ~CLK;
+initial begin
+RST = 1;NS_Traffic = 1; EW_Traffic = 0; NSYellowReset=0; EWYellowReset =0; NSGreenReset=0; EWGreenReset=0;
+#5; RST = 0;NS_Traffic = 0;
+#10; EW_Traffic = 1;
+#10; EW_Traffic = 0; NS_Traffic = 1;
+#10; NSYellowReset=1; EWYellowReset=1;
+
+end
+endmodule
 

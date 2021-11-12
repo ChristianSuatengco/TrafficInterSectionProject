@@ -1,0 +1,26 @@
+module TrafficLightState_TB;
+reg OtherRed1, GreenTrigger, YellowTrigger, CLK, RST;
+wire [1:0] signal;
+wire CurrentYellowReset, CurrentGreenReset;
+wire [3:0] counter;
+
+TrafficLightState DUT (.OtherRed1(OtherRed1),
+.GreenTrigger(GreenTrigger),
+.YellowTrigger(YellowTrigger),
+.CLK(CLK),
+.RST(RST),
+.signal(signal),
+.CurrentYellowReset(CurrentYellowReset),
+.CurrentGreenReset(CurrentGreenReset),
+.counter(counter));
+
+parameter ClockPeriod = 10;
+initial CLK=0;
+always #(ClockPeriod/2) CLK = ~CLK;
+
+initial begin
+RST=1; OtherRed1=0; GreenTrigger=0; YellowTrigger=0;#10;
+RST=0; #20; YellowTrigger=1; #150;
+
+end    
+endmodule

@@ -1,34 +1,58 @@
-module trafficlight #(parameter M=15, N=4)
-  (input CLK, CurrentTrafficYellowTrigger, OppositeLightGreen
-   output reg [1:0] signal
-   output reg OppositeGreenLightTrigger, CurrentYellowReset);
-  
-  /* make a loval parameter where green = 00, yellow = 01, red = 10
-  */
-  reg [N-1:0] ctr;
-  always @(posedge CLK)
-    if(!CurrentTrafficYellowTrigger) begin
-      ctr = 0;
-    end
-  else begin
-    if(ctr == M-1) begin
-    end
-    else begin
-    ctr <= ctr+1;
-    end
-  end
-  
-  always @(ctr)
-    case(ctr)
-      1: begin // change to yellow
-      signal <= 01
-      end
-      12:begin // change to red
-      signal <= 10
-      end
-      15: begin// send green signal to other traffic light
-      OppositeGreenLightTrigger <= 1;
-      CurrentYellowReset <= 1;
-      end
-        
-      
+module TrafficLightState(input OtherRed1, GreenTrigger, YellowTrigger, CLK, RST,
+                        output reg[1:0] signal,
+                        output reg CurrentYellowReset, CurrentGreenReset,
+                        output reg [3:0] counter);
+                        parameter s0 = 2'b00, s1= 2'b01, s2=2'b10;
+                        reg [3:0] ctr = 0;
+                        reg [1:0] state;
+                        always@(posedge CLK or posedge RST) begin
+                        if(RST)begin
+                            state <= s2; signal<= 2'b10; CurrentYellowReset <= 0; CurrentGreenReset <= 0;
+                        end
+                        else begin
+                        if(OtherRed1 && GreenTrigger)begin
+                        state <= s0;
+                        end
+                        if(!YellowTrigger) begin
+                        ctr<=0;
+                        end
+                        else begin
+                        if(ctr == 10) begin
+                        end
+                        else begin
+                        ctr <= ctr+1;
+                        end
+                        end
+                        end
+                        end
+                        
+                        always @(ctr)begin
+                        counter <= ctr;
+                        case(ctr)
+                        2:begin
+                        state <= s1;
+                        end
+                        9:begin
+                        state <= s2;
+                        end
+                        endcase
+                        end
+                        
+                        
+                        always @(state)
+                        case(state)
+                        s0:begin
+                        signal <= 2'b00;
+                        CurrentGreenReset <= 1;
+                        end
+                        s1:begin
+                        signal <= 2'b01;
+                        CurrentGreenReset <= 0;
+                        CurrentYellowReset <= 1;
+                        end
+                        s2:begin
+                        signal <= 2'b10;
+                        CurrentYellowReset <= 0;
+                        end
+                        endcase
+endmodule

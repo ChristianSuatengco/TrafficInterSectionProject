@@ -1,0 +1,26 @@
+module TrafficLightSignals(input [1:0] signal, 
+                            output reg red, yellow, green);
+                          localparam ON = 1'b1, OFF = 1'b0;
+                          always@(signal)
+                            begin
+                            case (signal)
+                            00:begin
+                            green <= ON;
+                            yellow <= OFF;
+                            red <= OFF;
+                            end
+                            01:begin
+                            green <= OFF;
+                            yellow <= ON;
+                            red <= OFF;
+                            end
+                            10:begin
+                            green <= OFF;
+                            yellow <= OFF;
+                            red <= ON;
+                            end
+                            endcase
+                            end
+                            
+endmodule
+

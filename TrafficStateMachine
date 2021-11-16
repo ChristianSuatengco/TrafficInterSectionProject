@@ -45,3 +45,4 @@ module TrafficInterSection(input NSYellowReset, EWYellowReset, NSGreenReset, EWG
                              end
                                      
 endmodule
+

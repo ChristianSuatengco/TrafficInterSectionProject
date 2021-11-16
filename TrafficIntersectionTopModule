@@ -1,0 +1,50 @@
+module TrafficIntersectionTop (input NSTraffic, EWTraffic, CLK, RST,
+				output wire NSRed, NSYellow, NSGreen, EWRed, EWYellow, EWGreen,
+				output wire intersectionCurrentState,
+				output reg [3:0] NSTrafficLightCounter,
+				output reg [3:0] EWTrafficLightCounter);
+wire NSYellowReset;
+wire EWYellowReset;
+wire NSGreenReset;
+wire EWGreenReset;
+wire NSYellowTrigger;
+wire EWYellowTrigger;
+wire NSGreenTrigger;
+wire EWGreenTrigger;
+wire [1:0] NSSignal;
+wire [1:0] EWSignal;
+// .module input/out definition (instatntiation input,out defninition),.
+TrafficInterSection DUT (
+.NSYellow(NSYellowReset),
+.EWYellow(EWYellowReset),
+.NSGreenReset(NSGreenReset),
+.EWGreenReset(EWGreenReset),
+.NS_Traffic(NSTraffic),
+.EW_Traffic(EWTraffic),
+.CLK(CLK),
+.RST(RST),
+.NS_TrafficColorYellowTrigger(NSYellowTrigger),
+.EW_TrafficColorYellowTrigger(EWYellowTrigger),
+.NS_TrafficColorGreenTrigger(NSGreenTrigger),
+.EW_TrafficColorGreenTrigger(EWGreenTrigger),
+.CurrentState(intersectionCurrentState));
+
+TrafficLightState NSL
+
+TrafficLightState EWL
+
+TrafficLightSignals NSLS (
+.signal(NSSignal),
+.red(NSRed),
+.yellow(NSYellow),
+.green(NSGreen));
+
+TrafficLightSignals EWLS(
+.signal(EWSignal),
+.red(EWRed),
+.yellow(EWYellow),
+.green(EWGreen));
+
+
+
+endmodule

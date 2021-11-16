@@ -1,26 +1,32 @@
-module TrafficLightSignals(input [1:0] signal, 
+module TrafficLightSignals(input [1:0] signal,
+                            input RST, CLK,
                             output reg red, yellow, green);
                           localparam ON = 1'b1, OFF = 1'b0;
-                          always@(signal)
+                          always@(posedge CLK)
                             begin
                             case (signal)
-                            00:begin
+                            2'b00:begin
                             green <= ON;
                             yellow <= OFF;
                             red <= OFF;
                             end
-                            01:begin
+                            2'b01:begin
                             green <= OFF;
                             yellow <= ON;
                             red <= OFF;
                             end
-                            10:begin
+                            2'b10:begin
                             green <= OFF;
                             yellow <= OFF;
                             red <= ON;
                             end
                             endcase
                             end
+                           
+                           always@(posedge RST)begin
+                           green <= OFF;
+                           yellow <= OFF;
+                           red <= ON;
+                           end
                             
 endmodule
-

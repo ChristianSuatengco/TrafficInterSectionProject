@@ -1,22 +1,26 @@
-module TrafficIntersectionTop (input NSTraffic, EWTraffic, CLK, RST,
+module TrafficIntersectionTop(input NSTraffic, EWTraffic, CLK, RST,
 				output wire NSRed, NSYellow, NSGreen, EWRed, EWYellow, EWGreen,
 				output wire intersectionCurrentState,
-				output reg [3:0] NSTrafficLightCounter,
-				output reg [3:0] EWTrafficLightCounter);
-wire NSYellowReset;
-wire EWYellowReset;
-wire NSGreenReset;
-wire EWGreenReset;
-wire NSYellowTrigger;
-wire EWYellowTrigger;
-wire NSGreenTrigger;
-wire EWGreenTrigger;
-wire [1:0] NSSignal;
-wire [1:0] EWSignal;
+				output wire [3:0] NSTrafficLightCounter,
+				output wire [3:0] EWTrafficLightCounter,
+				output wire [1:0] NSLightState,
+				output wire [1:0] EWLightState,
+output wire NSYellowReset,
+output wire EWYellowReset,
+output wire NSGreenReset,
+output wire EWGreenReset,
+output wire NSYellowTrigger,
+output wire EWYellowTrigger,
+output wire NSGreenTrigger,
+output wire EWGreenTrigger,
+output wire [1:0] NSSignal,
+output wire [1:0] EWSignal);
 // .module input/out definition (instatntiation input,out defninition),.
+
+
 TrafficInterSection DUT (
-.NSYellow(NSYellowReset),
-.EWYellow(EWYellowReset),
+.NSYellowReset(NSYellowReset),
+.EWYellowReset(EWYellowReset),
 .NSGreenReset(NSGreenReset),
 .EWGreenReset(EWGreenReset),
 .NS_Traffic(NSTraffic),
@@ -29,22 +33,47 @@ TrafficInterSection DUT (
 .EW_TrafficColorGreenTrigger(EWGreenTrigger),
 .CurrentState(intersectionCurrentState));
 
-TrafficLightState NSL
 
-TrafficLightState EWL
+TrafficLightState NSL (
+.OtherRed1(EWRed),
+.GreenTrigger(NSGreenTrigger),
+.YellowTrigger(NSYellowTrigger),
+.CLK(CLK),
+.RST(RST),
+.signal(NSSignal),
+.CurrentYellowReset(NSYellowReset),
+.CurrentGreenReset(NSGreenReset),
+.counter(NSTrafficLightCounter),
+.state(NSLightState));
+
+
+TrafficLightState EWL (
+.OtherRed1(NSRed),
+.GreenTrigger(EWGreenTrigger),
+.YellowTrigger(EWYellowTrigger),
+.CLK(CLK),
+.RST(RST),
+.signal(EWSignal),
+.CurrentYellowReset(EWYellowReset),
+.CurrentGreenReset(EWGreenReset),
+.counter(EWTrafficLightCounter),
+.state(EWLightState));
+
 
 TrafficLightSignals NSLS (
 .signal(NSSignal),
 .red(NSRed),
 .yellow(NSYellow),
-.green(NSGreen));
+.green(NSGreen),
+.RST(RST),
+.CLK(CLK));
+
 
 TrafficLightSignals EWLS(
 .signal(EWSignal),
 .red(EWRed),
 .yellow(EWYellow),
-.green(EWGreen));
-
-
-
+.green(EWGreen),
+.RST(RST),
+.CLK(CLK));
 endmodule

@@ -1,79 +1,145 @@
-module TrafficIntersectionTop(input NSTraffic, EWTraffic, CLK, RST,
-				output wire NSRed, NSYellow, NSGreen, EWRed, EWYellow, EWGreen,
-				output wire intersectionCurrentState,
-				output wire [3:0] NSTrafficLightCounter,
-				output wire [3:0] EWTrafficLightCounter,
-				output wire [1:0] NSLightState,
-				output wire [1:0] EWLightState,
-output wire NSYellowReset,
-output wire EWYellowReset,
-output wire NSGreenReset,
-output wire EWGreenReset,
-output wire NSYellowTrigger,
-output wire EWYellowTrigger,
-output wire NSGreenTrigger,
-output wire EWGreenTrigger,
-output wire [1:0] NSSignal,
-output wire [1:0] EWSignal);
-// .module input/out definition (instatntiation input,out defninition),.
+module TrafficIntersectionTop(input NTraffic, STraffic, ETraffic, WTraffic, CLK, RST,
+                              //input NCrossWalkButton, SCrossWalkButton, ECrossWalkButton, WCrossWalkButton,
+				              output wire NRed, NYellow, NGreen,
+                              output wire SRed, SYellow, SGreen,
+                              output wire ERed, EYellow, EGreen,
+                              output wire WRed, WYellow, WGreen,
+//output wire NCrossWalkLightTrigger, SCrossWalkLightTrigger, ECrossWalkLightTrigger, WCrossWalkLightTrigger,
+output wire CrossWalkDelay,
+output wire intersectionCurrentState,
+output wire [3:0] NTrafficLightCounter,
+output wire [3:0] STrafficLightCounter,
+output wire [3:0] ETrafficLightCounter,
+output wire [3:0] WTrafficLightCounter,
+output wire [1:0] NLightState,
+output wire [1:0] SLightState,
+output wire [1:0] ELightState,
+output wire [1:0] WLightState,
+output wire NYellowReset,
+output wire SYellowReset,
+output wire EYellowReset,
+output wire WYellowReset,
+output wire NGreenReset,
+output wire SGreenReset,
+output wire EGreenReset,
+output wire WGreenReset,
+output wire NYellowTrigger,
+output wire SYellowTrigger,
+output wire EYellowTrigger,
+output wire WYellowTrigger,
+output wire NGreenTrigger,
+output wire SGreenTrigger,
+output wire EGreenTrigger,
+output wire WGreenTrigger,
+output wire [1:0] NSignal,
+output wire [1:0] SSignal,
+output wire [1:0] ESignal,
+output wire [1:0] WSignal,
+output wire Intersectiondelay,
+output wire [6:0] delayctr);
 
 
 TrafficInterSection DUT (
-.NSYellowReset(NSYellowReset),
-.EWYellowReset(EWYellowReset),
-.NSGreenReset(NSGreenReset),
-.EWGreenReset(EWGreenReset),
-.NS_Traffic(NSTraffic),
-.EW_Traffic(EWTraffic),
+.NYellowReset(NYellowReset),.NYellowTrigger(NYellowTrigger),.NGreenReset(NGreenReset),.NGreenTrigger(NGreenTrigger),
+.SYellowReset(SYellowReset),.SYellowTrigger(SYellowTrigger),.SGreenReset(SGreenReset),.SGreenTrigger(SGreenTrigger),
+.EYellowReset(EYellowReset),.EYellowTrigger(EYellowTrigger),.EGreenReset(EGreenReset),.EGreenTrigger(EGreenTrigger),
+.WYellowReset(WYellowReset),.WYellowTrigger(WYellowTrigger),.WGreenReset(WGreenReset),.WGreenTrigger(WGreenTrigger),
+.NTraffic(NTraffic),
+.STraffic(STraffic),
+.ETraffic(ETraffic),
+.WTraffic(WTraffic),
 .CLK(CLK),
 .RST(RST),
-.NS_TrafficColorYellowTrigger(NSYellowTrigger),
-.EW_TrafficColorYellowTrigger(EWYellowTrigger),
-.NS_TrafficColorGreenTrigger(NSGreenTrigger),
-.EW_TrafficColorGreenTrigger(EWGreenTrigger),
-.CurrentState(intersectionCurrentState));
+.CurrentState(intersectionCurrentState),
+.Intersectiondelay(Intersectiondelay),
+.delayctr(delayctr),
+.CrossWalkDelay(CrossWalkDelay));
 
 
-TrafficLightState NSL (
-.OtherRed1(EWRed),
-.GreenTrigger(NSGreenTrigger),
-.YellowTrigger(NSYellowTrigger),
+TrafficLightState NL (
+.OtherRed1(ERed),
+.OtherRed2(WRed),
+.GreenTrigger(NGreenTrigger),
+.YellowTrigger(NYellowTrigger),
 .CLK(CLK),
 .RST(RST),
-.signal(NSSignal),
-.CurrentYellowReset(NSYellowReset),
-.CurrentGreenReset(NSGreenReset),
-.counter(NSTrafficLightCounter),
-.state(NSLightState));
+.signal(NSignal),
+.CurrentYellowReset(NYellowReset),
+.CurrentGreenReset(NGreenReset),
+.counter(NTrafficLightCounter),
+.state(NLightState));
 
 
-TrafficLightState EWL (
-.OtherRed1(NSRed),
-.GreenTrigger(EWGreenTrigger),
-.YellowTrigger(EWYellowTrigger),
+TrafficLightState SL (
+.OtherRed1(ERed),
+.OtherRed2(WRed),
+.GreenTrigger(SGreenTrigger),
+.YellowTrigger(SYellowTrigger),
 .CLK(CLK),
 .RST(RST),
-.signal(EWSignal),
-.CurrentYellowReset(EWYellowReset),
-.CurrentGreenReset(EWGreenReset),
-.counter(EWTrafficLightCounter),
-.state(EWLightState));
+.signal(SSignal),
+.CurrentYellowReset(SYellowReset),
+.CurrentGreenReset(SGreenReset),
+.counter(STrafficLightCounter),
+.state(SLightState));
 
 
-TrafficLightSignals NSLS (
-.signal(NSSignal),
-.red(NSRed),
-.yellow(NSYellow),
-.green(NSGreen),
+TrafficLightState EL (
+.OtherRed1(NRed),
+.OtherRed2(SRed),
+.GreenTrigger(EGreenTrigger),
+.YellowTrigger(EYellowTrigger),
+.CLK(CLK),
+.RST(RST),
+.signal(ESignal),
+.CurrentYellowReset(EYellowReset),
+.CurrentGreenReset(EGreenReset),
+.counter(ETrafficLightCounter),
+.state(ELightState));
+
+TrafficLightState WL (
+.OtherRed1(NRed),
+.OtherRed2(SRed),
+.GreenTrigger(WGreenTrigger),
+.YellowTrigger(WYellowTrigger),
+.CLK(CLK),
+.RST(RST),
+.signal(WSignal),
+.CurrentYellowReset(WYellowReset),
+.CurrentGreenReset(WGreenReset),
+.counter(WTrafficLightCounter),
+.state(WLightState));
+
+
+TrafficLightSignals NLS (
+.signal(NSignal),
+.red(NRed),
+.yellow(NYellow),
+.green(NGreen),
 .RST(RST),
 .CLK(CLK));
 
+TrafficLightSignals SLS (
+.signal(SSignal),
+.red(SRed),
+.yellow(SYellow),
+.green(SGreen),
+.RST(RST),
+.CLK(CLK));
 
-TrafficLightSignals EWLS(
-.signal(EWSignal),
-.red(EWRed),
-.yellow(EWYellow),
-.green(EWGreen),
+TrafficLightSignals ELS(
+.signal(ESignal),
+.red(ERed),
+.yellow(EYellow),
+.green(EGreen),
+.RST(RST),
+.CLK(CLK));
+
+TrafficLightSignals WLS (
+.signal(WSignal),
+.red(WRed),
+.yellow(WYellow),
+.green(WGreen),
 .RST(RST),
 .CLK(CLK));
 endmodule

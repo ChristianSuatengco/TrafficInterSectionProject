@@ -1,4 +1,4 @@
-module TrafficLightState(input OtherRed1, GreenTrigger, YellowTrigger, CLK, RST,
+module TrafficLightState(input OtherRed1, OtherRed2, GreenTrigger, YellowTrigger, CLK, RST,
                         output reg[1:0] signal,
                         output reg CurrentYellowReset, CurrentGreenReset,
                         output reg [3:0] counter,
@@ -11,7 +11,7 @@ module TrafficLightState(input OtherRed1, GreenTrigger, YellowTrigger, CLK, RST,
                             state <= s2; signal<= 2'b10; CurrentYellowReset <= 0; CurrentGreenReset <= 0;
                         end
                         else begin
-                        if(OtherRed1 && GreenTrigger)begin
+                        if(OtherRed1 && OtherRed2 && GreenTrigger)begin
                         state <= s0;
                         end
                         if(!YellowTrigger) begin

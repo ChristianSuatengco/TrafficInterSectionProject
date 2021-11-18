@@ -1,48 +1,98 @@
-module TrafficInterSection(input NSYellowReset, EWYellowReset, NSGreenReset, EWGreenReset, NS_Traffic, EW_Traffic, CLK, RST,
-                            output reg NS_TrafficColorYellowTrigger, EW_TrafficColorYellowTrigger,
-                                       NS_TrafficColorGreenTrigger, EW_TrafficColorGreenTrigger, CurrentState);
+module TrafficInterSection(
+               input CLK, RST,
+			   input NYellowReset, NGreenReset, SYellowReset, SGreenReset,
+			   input EYellowReset, EGreenReset, WYellowReset, WGreenReset,
+			   input NTraffic, STraffic, ETraffic, WTraffic,
+			   input CrossWalkDelay,
+			   output reg NYellowTrigger, NGreenTrigger, SYellowTrigger, SGreenTrigger,
+			   output reg EYellowTrigger, EGreenTrigger, WYellowTrigger, WGreenTrigger,
+			   output reg CurrentState, Intersectiondelay,
+			   output reg [6:0] delayctr);
                             parameter s0 = 2'b00, s1 = 2'b01;
                             reg [1:0] state;
-                            always @(posedge CLK or posedge RST) begin
-                                if(NSYellowReset)begin
-                                NS_TrafficColorYellowTrigger <= 1'b0;
-                                end
-                                if(EWYellowReset)begin
-                                EW_TrafficColorYellowTrigger <= 1'b0;
-                                end
-                                if(NSGreenReset)begin
-                                NS_TrafficColorGreenTrigger <= 1'b0;
-                                end
-                                if(EWGreenReset)begin
-                                EW_TrafficColorGreenTrigger <=1'b0;
-                                end
-                                if(RST) begin
+			   
+
+                            always @(posedge CLK or posedge RST) begin	
+                            
+                            //Begin Reset of any Light Triggers		      
+                            if(NYellowReset)begin
+                            NYellowTrigger <= 1'b0;
+                            end
+                            if(SYellowReset)begin
+                            SYellowTrigger <= 1'b0;
+                            end
+                            if(EYellowReset)begin
+                            EYellowTrigger <= 1'b0;
+                            end
+                            if(WYellowReset)begin
+                            WYellowTrigger <= 1'b0;
+                            end
+                            if(NGreenReset)begin
+                            NGreenTrigger <= 1'b0;
+                            end
+                            if(SGreenReset)begin
+                            SGreenTrigger <= 1'b0;
+                            end
+                            if(EGreenReset)begin
+                            EGreenTrigger <= 1'b0;
+                            end
+                            if(WGreenReset)begin
+                            WGreenTrigger <= 1'b0;
+                            end
+                            //End of Resetting of Light Triggers
+                            
+                            //Delay check to see if lights were changed recently using a counter and a conditional
+				            if(Intersectiondelay == 1)begin
+				            if(delayctr == 0)begin
+				            delayctr <= 16;
+				            Intersectiondelay <= 0;
+				            end
+				            else begin
+				            delayctr <= delayctr - 1 ;
+				            end
+				            end
+				            else if(CrossWalkDelay == 1) begin
+				            end	            
+                            else begin
+	
+                                if(RST) begin // Initialize on Reset
                                 state <= s0;
-                                NS_TrafficColorYellowTrigger <= 1'b0; EW_TrafficColorYellowTrigger <= 1'b0;
-                                NS_TrafficColorGreenTrigger <= 1'b1; EW_TrafficColorGreenTrigger <=1'b0;
+                                NYellowTrigger <= 1'b0; SYellowTrigger <= 1'b0;
+                                EYellowTrigger <= 1'b0; WYellowTrigger <= 1'b0;
+                                NGreenTrigger <= 1'b1; SGreenTrigger <= 1'b1;
+                                EGreenTrigger <= 1'b0; WGreenTrigger <= 1'b0;
+                                Intersectiondelay <= 1'b0; delayctr <= 16;
                                 end
                                 else begin
-                                    case(state)
-                                    s0: begin
-                                     if(!NS_Traffic && EW_Traffic) begin
-                                     state <= s1;
-                                     NS_TrafficColorYellowTrigger <= 1'b1;
-                                     EW_TrafficColorGreenTrigger <=1'b1;
-                                     end
-                                     end
-                                     s1:begin
-                                     if(NS_Traffic && !EW_Traffic) begin
+                               	   case(state)
+                                    s0: begin                                                      //North and South Lights Green, East West Lights Red
+				                    if(!NTraffic && !STraffic && ETraffic && WTraffic) begin
+                                    state <= s1;
+                                    NYellowTrigger <= 1'b1;
+				                    SYellowTrigger <= 1'b1;
+                                    EGreenTrigger <=1'b1;
+				                    WGreenTrigger <= 1'b1;
+				                    Intersectiondelay <= 1;
+                                     		end
+                                     	end
+                                     s1:begin                                                      //North and South Lights Red, East West Lights Green
+  				                     if(NTraffic && STraffic && !ETraffic && !WTraffic) begin
                                      state <= s0;
-                                     NS_TrafficColorGreenTrigger <= 1'b1;
-                                     EW_TrafficColorYellowTrigger <= 1'b1;
+                                     EYellowTrigger <= 1'b1;
+				                     WYellowTrigger <= 1'b1;
+                                     NGreenTrigger <=1'b1;
+				                     SGreenTrigger <= 1'b1;
+				                     Intersectiondelay <= 1;
+                                     		end
+                                     	end
+                                     endcase
                                      end
-                                     end
-                                    endcase
-                                     end
-                                     end
+                               end
+                             end
+                             
                              always@(state)begin
                              CurrentState<=state;
                              end
-                                     
+			
+			                                       
 endmodule
-

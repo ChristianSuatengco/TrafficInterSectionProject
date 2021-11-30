@@ -1,20 +1,56 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 10/26/2021 11:29:01 PM
+// Design Name: 
+// Module Name: TrafficInterSection
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
 module TrafficInterSection(
                input CLK, RST,
-			   input NYellowReset, NGreenReset, SYellowReset, SGreenReset,
-			   input EYellowReset, EGreenReset, WYellowReset, WGreenReset,
-			   input NTraffic, STraffic, ETraffic, WTraffic,
+               //Resets affect the trigger that changes a stoplight color
+               input NLYellowReset, NLGreenReset, SLYellowReset, SLGreenReset, //NL=NorthLeftTurn SL=SouthLeftTurn
+			   input NYellowReset, NGreenReset, SYellowReset, SGreenReset, //N=North S=South
+			   input EYellowReset, EGreenReset, WYellowReset, WGreenReset, //E=East W=West
+			   
+			   input NTraffic, STraffic, ETraffic, WTraffic, NLTraffic, SLTraffic, //6 traffic car inputs
 			   input CrossWalkDelay,
+			   //Triggers send a signal that change the stoplight color
+			   output reg NLYellowTrigger, NLGreenTrigger, SLYellowTrigger, SLGreenTrigger,
 			   output reg NYellowTrigger, NGreenTrigger, SYellowTrigger, SGreenTrigger,
 			   output reg EYellowTrigger, EGreenTrigger, WYellowTrigger, WGreenTrigger,
-			   output reg CurrentState, Intersectiondelay,
-			   output reg [6:0] delayctr);
-                            parameter s0 = 2'b00, s1 = 2'b01;
-                            reg [1:0] state;
 			   
+			   output reg [2:0] CurrentState, 
+			   output reg Intersectiondelay,
+			   output reg [6:0] delayctr,
+			   output reg [5:0] inputStorage);
+                            parameter s0 = 3'b000, s1 = 3'b001, s2 = 3'b010, s3 = 3'b011, s4 = 3'b100;
+                            reg [2:0] state;
+			                
 
                             always @(posedge CLK or posedge RST) begin	
-                            
-                            //Begin Reset of any Light Triggers		      
+                            inputStorage <= {NTraffic, STraffic, ETraffic, WTraffic, NLTraffic, SLTraffic};
+                            //Begin Reset of any Light Triggers
+                            if(NLYellowReset)begin
+                            NLYellowTrigger <= 1'b0;
+                            end	
+                            if(SLYellowReset)begin
+                            SLYellowTrigger <= 1'b0;
+                            end	      
                             if(NYellowReset)begin
                             NYellowTrigger <= 1'b0;
                             end
@@ -26,6 +62,12 @@ module TrafficInterSection(
                             end
                             if(WYellowReset)begin
                             WYellowTrigger <= 1'b0;
+                            end
+                            if(NLGreenReset)begin
+                            NLGreenTrigger <= 1'b0;
+                            end
+                            if(SLGreenReset)begin
+                            SLGreenTrigger <= 1'b0;
                             end
                             if(NGreenReset)begin
                             NGreenTrigger <= 1'b0;
@@ -41,8 +83,21 @@ module TrafficInterSection(
                             end
                             //End of Resetting of Light Triggers
                             
-                            //Delay check to see if lights were changed recently using a counter and a conditional
-				            if(Intersectiondelay == 1)begin
+                            
+                            if(CrossWalkDelay == 1) begin           //CrossWalkDelay check if any crosswalk button was pressed recently
+				            end
+				            else if(Intersectiondelay == 1)begin    //Delay check to see if lights were changed recently using a counter and a conditional
+				            if(delayctr == 0)begin                  //When the counter hits 0/ends 
+				            delayctr <= 16;                         //it resets the counter for the next iteration
+				            Intersectiondelay <= 0;                 //Delay becomes 0 and allows for the next state change to happen
+				            end
+				            else begin
+				            delayctr <= delayctr - 1 ;              //While the counter is counting down, just decrease the number by 1
+				            end
+				            end
+				            else begin
+                            
+				            /*if(Intersectiondelay == 1)begin
 				            if(delayctr == 0)begin
 				            delayctr <= 16;
 				            Intersectiondelay <= 0;
@@ -53,38 +108,216 @@ module TrafficInterSection(
 				            end
 				            else if(CrossWalkDelay == 1) begin
 				            end	            
-                            else begin
+                            else begin */
 	
                                 if(RST) begin // Initialize on Reset
                                 state <= s0;
+                                NLYellowTrigger <=1'b0; SLYellowTrigger <=1'b0;
                                 NYellowTrigger <= 1'b0; SYellowTrigger <= 1'b0;
                                 EYellowTrigger <= 1'b0; WYellowTrigger <= 1'b0;
-                                NGreenTrigger <= 1'b1; SGreenTrigger <= 1'b1;
+                                NLGreenTrigger <=1'b0; SLGreenTrigger <=1'b0; 
+                                NGreenTrigger <= 1'b1; SGreenTrigger <= 1'b1;   //Reset initializes only the N and S to green everything else is Red
                                 EGreenTrigger <= 1'b0; WGreenTrigger <= 1'b0;
                                 Intersectiondelay <= 1'b0; delayctr <= 16;
                                 end
                                 else begin
+                                                                                //First Case line is based on the current state
+                                                                                //Second Case line is based on the input when the state change happens
                                	   case(state)
-                                    s0: begin                                                      //North and South Lights Green, East West Lights Red
-				                    if(!NTraffic && !STraffic && ETraffic && WTraffic) begin
-                                    state <= s1;
-                                    NYellowTrigger <= 1'b1;
-				                    SYellowTrigger <= 1'b1;
-                                    EGreenTrigger <=1'b1;
-				                    WGreenTrigger <= 1'b1;
-				                    Intersectiondelay <= 1;
-                                     		end
+                                    s0: begin                                   //North, South Green | East, West, North Left, South Left Red
+                                    casex(inputStorage)                         
+                                    
+                                        6'b0011xx, 6'b0001xx, 6'b0010xx: begin
+                                        state <= s1;
+                                        NYellowTrigger <= 1'b1;
+				                        SYellowTrigger <= 1'b1;
+                                        EGreenTrigger <=1'b1;
+				                        WGreenTrigger <= 1'b1;
+				                        Intersectiondelay <= 1;
+                                            end
+                                            
+                                        6'b10xx1x, 6'b000010: begin
+                                        state <= s2;
+				                        SYellowTrigger <= 1'b1;
+				                        NLGreenTrigger <= 1'b1;
+				                        Intersectiondelay <= 1;
+                                            end
+                                            
+                                        6'b01xxx1, 6'b000001: begin
+                                        state <= s3;
+                                        NYellowTrigger <= 1'b1;
+				                        SLGreenTrigger <= 1'b1;
+				                        Intersectiondelay <= 1;
+                                            end
+                                            
+                                        6'b000001, 6'b000010, 6'b000011: begin
+                                        state <= s4;
+                                        NYellowTrigger <= 1'b1;
+				                        SYellowTrigger <= 1'b1;
+				                        NLGreenTrigger <= 1'b1;
+				                        SLGreenTrigger <= 1'b1;
+				                        Intersectiondelay <= 1;
+				                        end
+                                            
+                                        endcase 		
                                      	end
-                                     s1:begin                                                      //North and South Lights Red, East West Lights Green
-  				                     if(NTraffic && STraffic && !ETraffic && !WTraffic) begin
-                                     state <= s0;
-                                     EYellowTrigger <= 1'b1;
-				                     WYellowTrigger <= 1'b1;
-                                     NGreenTrigger <=1'b1;
-				                     SGreenTrigger <= 1'b1;
-				                     Intersectiondelay <= 1;
-                                     		end
+                                     	
+                                    s1:begin                                    //East, West Green | North, South, North Left, South Left Red
+                                    casex(inputStorage)
+                                     
+                                        6'bxx0000:begin
+                                        state <= s0;
+                                        EYellowTrigger <= 1'b1;
+				                        WYellowTrigger <= 1'b1;
+				                        Intersectiondelay <= 1;				                        
+				                        NGreenTrigger <=1'b1;
+				                        SGreenTrigger <= 1'b1;
+                                        end
+                                        
+                                        6'bxx0010:begin
+                                        state <= s2;
+                                        EYellowTrigger <= 1'b1;
+				                        WYellowTrigger <= 1'b1;
+				                        Intersectiondelay <= 1;
+				                        NGreenTrigger <=1'b1;
+				                        NLGreenTrigger <=1'b1;
+                                        end
+                                        
+                                        6'bxx0001:begin
+                                        state <= s3;
+                                        EYellowTrigger <= 1'b1;
+				                        WYellowTrigger <= 1'b1;
+				                        Intersectiondelay <= 1;
+				                        SGreenTrigger <= 1'b1;
+				                        SLGreenTrigger <= 1'b1;
+                                        end
+                                        
+                                        6'bxx0011:begin
+                                        state <= s4;
+                                        EYellowTrigger <= 1'b1;
+				                        WYellowTrigger <= 1'b1;
+				                        Intersectiondelay <= 1;
+				                        NLGreenTrigger <= 1'b1;
+				                        SLGreenTrigger <= 1'b1;
+                                        end
+                                        
+                                        endcase		
                                      	end
+                                     	
+                                    s2:begin                                    //North, North Left Green | South, South Left, East, West Red
+                                    casex(inputStorage)
+                                    
+                                        6'b1xxx0x:begin
+                                        state <= s0;
+                                        NLYellowTrigger <= 1'b1;
+                                        SGreenTrigger <=1'b1;
+                                        Intersectiondelay <= 1;
+                                        end
+                                        
+                                        6'b00100x, 6'b00010x, 6'b00110x:begin
+                                        state <= s1;
+                                        NLYellowTrigger <= 1'b1;
+                                        NYellowTrigger <= 1'b1;
+                                        EGreenTrigger <= 1'b1;
+                                        WGreenTrigger <= 1'b1;
+                                        Intersectiondelay <= 1;                                       
+                                        end
+                                        
+                                        6'b01xx01:begin
+                                        state <= s3;
+                                        NLYellowTrigger <= 1'b1;
+                                        NYellowTrigger <= 1'b1;
+                                        SGreenTrigger <= 1'b1;
+                                        SLGreenTrigger <= 1'b1;
+                                        Intersectiondelay <= 1;  
+                                        end
+                                        
+                                        6'b0xxx11:begin
+                                        state <= s4;
+                                        NYellowTrigger <= 1'b1;
+                                        SLGreenTrigger <= 1'b1;
+                                        Intersectiondelay <= 1; 
+                                        end
+                                        
+                                        endcase
+                                        end
+                                        
+                                        s3:begin                                //South, South Left Green | North, North Left, East, West Red
+                                    casex(inputStorage)
+                                    
+                                        6'bx1xxx0:begin
+                                        state <= s0;
+                                        SLYellowTrigger <= 1'b1;
+                                        NGreenTrigger <=1'b1;
+                                        Intersectiondelay <= 1;
+                                        end
+                                        
+                                        6'b0010x0, 6'b0001x0, 6'b0011x0:begin
+                                        state <= s1;
+                                        SLYellowTrigger <= 1'b1;
+                                        SYellowTrigger <= 1'b1;
+                                        EGreenTrigger <= 1'b1;
+                                        WGreenTrigger <= 1'b1;
+                                        Intersectiondelay <= 1;
+                                        end
+                                        
+                                        6'b10xx10:begin
+                                        state <= s2;
+                                        SLYellowTrigger <= 1'b1;
+                                        SYellowTrigger <= 1'b1;
+                                        NGreenTrigger <= 1'b1;
+                                        NLGreenTrigger <= 1'b1;
+                                        Intersectiondelay <= 1; 
+                                        end
+                                        
+                                        6'bx0xx11:begin
+                                        state <= s4;
+                                        SYellowTrigger <= 1'b1;
+                                        NLGreenTrigger <= 1'b1;
+                                        Intersectiondelay <= 1;
+                                        end
+                                        
+                                        endcase
+                                        end
+                                        
+                                    s4:begin                                    //North Left, South Left Green | North, South, East, West Red
+                                    casex(inputStorage)
+                                    
+                                        6'b11xxxx,6'b000000:begin
+                                        state <= s0;
+                                        NLYellowTrigger <= 1'b1;
+                                        SLYellowTrigger <= 1'b1;
+                                        NGreenTrigger <= 1'b1;
+                                        SGreenTrigger <= 1'b1;
+                                        Intersectiondelay <=1;
+                                        end
+                                        
+                                        6'b101100, 6'b011100, 6'b001100:begin
+                                        state <= s1;
+                                        NLYellowTrigger <= 1'b1;
+                                        SLYellowTrigger <= 1'b1;
+                                        EGreenTrigger <= 1'b1;
+                                        WGreenTrigger <= 1'b1;
+                                        Intersectiondelay <=1;
+                                        end
+                                        
+                                        6'b1xxx10:begin
+                                        state <= s2;
+                                        SLYellowTrigger <= 1'b1;
+                                        NGreenTrigger <= 1'b1;
+                                        Intersectiondelay <=1;
+                                        end
+                                        
+                                        6'bx1xx01:begin
+                                        state <= s3;
+                                        NLYellowTrigger <= 1'b1;
+                                        SGreenTrigger <= 1'b1;
+                                        Intersectiondelay <=1;
+                                        end
+                                    
+                                        endcase
+                                     	end
+                                     	
                                      endcase
                                      end
                                end

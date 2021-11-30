@@ -4,7 +4,7 @@ module TrafficLightSignals(input [1:0] signal,
                           localparam ON = 1'b1, OFF = 1'b0;
                           always@(posedge CLK)
                             begin
-                            case (signal)
+                            case (signal)   //Based on the signal that is passed the Green, Yellow, and Red change ON or OFF
                             2'b00:begin
                             green <= ON;
                             yellow <= OFF;

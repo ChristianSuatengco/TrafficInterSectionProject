@@ -21,20 +21,21 @@
 
 
 module TrafficInterSection(
-               input CLK, RST,
+               input CLK, RST, //Needed
                //Resets affect the trigger that changes a stoplight color
-               input NLYellowReset, NLGreenReset, SLYellowReset, SLGreenReset, //NL=NorthLeftTurn SL=SouthLeftTurn
-			   input NYellowReset, NGreenReset, SYellowReset, SGreenReset, //N=North S=South
-			   input EYellowReset, EGreenReset, WYellowReset, WGreenReset, //E=East W=West
+               input NLYellowReset, NLGreenReset, SLYellowReset, SLGreenReset, //NL=NorthLeftTurn SL=SouthLeftTurn Needed
+			   input NYellowReset, NGreenReset, SYellowReset, SGreenReset, //N=North S=South Needed
+			   input EYellowReset, EGreenReset, WYellowReset, WGreenReset, //E=East W=West Needed
 			   
-			   input NTraffic, STraffic, ETraffic, WTraffic, NLTraffic, SLTraffic, //6 traffic car inputs
-			   input CrossWalkDelay,
+			   input NTraffic, STraffic, ETraffic, WTraffic, NLTraffic, SLTraffic, //6 traffic car inputs //Needed
+			   input CrossWalkDelay, //Needed
+			   
 			   //Triggers send a signal that change the stoplight color
-			   output reg NLYellowTrigger, NLGreenTrigger, SLYellowTrigger, SLGreenTrigger,
-			   output reg NYellowTrigger, NGreenTrigger, SYellowTrigger, SGreenTrigger,
-			   output reg EYellowTrigger, EGreenTrigger, WYellowTrigger, WGreenTrigger,
+			   output reg NLYellowTrigger, NLGreenTrigger, SLYellowTrigger, SLGreenTrigger, //Needed
+			   output reg NYellowTrigger, NGreenTrigger, SYellowTrigger, SGreenTrigger, //Needed
+			   output reg EYellowTrigger, EGreenTrigger, WYellowTrigger, WGreenTrigger, //Needed
 			   
-			   output reg [2:0] CurrentState, 
+			   output reg [2:0] CurrentState, //Needed
 			   output reg Intersectiondelay,
 			   output reg [6:0] delayctr,
 			   output reg [5:0] inputStorage);

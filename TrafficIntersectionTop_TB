@@ -1,60 +1,199 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 11/15/2021 09:05:35 PM
+// Design Name: 
+// Module Name: TrafficIntersectionTop_TB
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
 module TrafficIntersectionTop_TB;
-reg NSTraffic, EWTraffic, CLK, RST;
-wire NSRed, NSYellow, NSGreen;
-wire EWRed, EWYellow, EWGreen;
-wire intersectionCurrentState;
-wire [3:0] NSTrafficLightCounter;
-wire [3:0] EWTrafficLightCounter;
-wire [1:0] NSLightState;
-wire [1:0] EWLightState;
-wire NSYellowReset;
-wire EWYellowReset;
-wire NSGreenReset;
-wire EWGreenReset;
-wire NSYellowTrigger;
-wire EWYellowTrigger;
-wire NSGreenTrigger;
-wire EWGreenTrigger;
-wire [1:0] NSSignal;
-wire [1:0] EWSignal;
+reg NTraffic, STraffic, ETraffic, WTraffic, NLTraffic, SLTraffic, CLK, RST;
+reg NCrossWalkButton, SCrossWalkButton, ECrossWalkButton, WCrossWalkButton;
+wire NRed, NYellow, NGreen;
+wire SRed, SYellow, SGreen;
+wire ERed, EYellow, EGreen;
+wire WRed, WYellow, WGreen;
+wire NLRed, NLYellow, NLGreen;
+wire SLRed, SLYellow, SLGreen;
+wire [7:0] Na,Nb;
+wire [7:0] Sa,Sb;
+wire [7:0] Ea,Eb;
+wire [7:0] Wa,Wb;
+
+wire [2:0] intersectionCurrentState;
+wire [3:0] NTrafficLightCounter;
+wire [3:0] STrafficLightCounter;
+wire [3:0] ETrafficLightCounter;
+wire [3:0] WTrafficLightCounter;
+wire [3:0] NLTrafficLightCounter;
+wire [3:0] SLTrafficLightCounter;
+wire [1:0] NLightState;
+wire [1:0] SLightState;
+wire [1:0] ELightState;
+wire [1:0] WLightState;
+wire [1:0] NLLightState;
+wire [1:0] SLLightState;
+wire NYellowReset;
+wire SYellowReset;
+wire EYellowReset;
+wire WYellowReset;
+wire NLYellowReset;
+wire SLYellowReset;
+wire NGreenReset;
+wire SGreenReset;
+wire EGreenReset;
+wire WGreenReset;
+wire NLGreenReset;
+wire SLGreenReset;
+wire NYellowTrigger;
+wire SYellowTrigger;
+wire EYellowTrigger;
+wire WYellowTrigger;
+wire NLYellowTrigger;
+wire SLYellowTrigger;
+wire NGreenTrigger;
+wire SGreenTrigger;
+wire EGreenTrigger;
+wire WGreenTrigger;
+wire NLGreenTrigger;
+wire SLGreenTrigger;
+wire [1:0] NSignal;
+wire [1:0] SSignal;
+wire [1:0] ESignal;
+wire [1:0] WSignal;
+wire [1:0] NLSignal;
+wire [1:0] SLSignal;
+wire Intersectiondelay;
+wire [6:0] delayctr; 
+wire NCrossWalkLightTrigger, SCrossWalkLightTrigger, ECrossWalkLightTrigger, WCrossWalkLightTrigger;
+wire NPressed, SPressed, EPressed, WPressed;
+wire [4:0] CrossWalkCtr;
+wire CrossWalkDelay;
+wire [4:0] NCWcounter;
+wire [4:0] SCWcounter;
+wire [4:0] ECWcounter;
+wire [4:0] WCWcounter;
+wire NisButtonPressed;
+wire SisButtonPressed;
+wire EisButtonPressed;
+wire WisButtonPressed;
+wire [5:0]inputStorage;
 
 TrafficIntersectionTop WORK (
-.NSTraffic(NSTraffic),
-.EWTraffic(EWTraffic),
+.NTraffic(NTraffic),
+.STraffic(STraffic),
+.ETraffic(ETraffic),
+.WTraffic(WTraffic),
+.NLTraffic(NLTraffic),
+.SLTraffic(SLTraffic),
 .CLK(CLK),
 .RST(RST),
-.NSRed(NSRed),
-.NSYellow(NSYellow),
-.NSGreen(NSGreen),
-.EWRed(EWRed),
-.EWYellow(EWYellow),
-.EWGreen(EWGreen),
-.intersectionCurrentState(intersectionCurrentState),
-.NSTrafficLightCounter(NSTrafficLightCounter),
-.EWTrafficLightCounter(EWTrafficLightCounter),
-.NSLightState(NSLightState),
-.EWLightState(EWLightState),
-.NSYellowReset(NSYellowReset),
-.EWYellowReset(EWYellowReset),
-.NSGreenReset(NSGreenReset),
-.EWGreenReset(EWGreenReset),
-.NSYellowTrigger(NSYellowTrigger),
-.EWYellowTrigger(EWYellowTrigger),
-.NSGreenTrigger(NSGreenTrigger),
-.EWGreenTrigger(EWGreenTrigger),
-.NSSignal(NSSignal),
-.EWSignal(EWSignal));
+.NRed(NRed),
+.NYellow(NYellow),
+.NGreen(NGreen),
+.SRed(SRed),
+.SYellow(SYellow),
+.SGreen(SGreen),
+.ERed(ERed),
+.EYellow(EYellow),
+.EGreen(EGreen),
+.WRed(WRed),
+.WYellow(WYellow),
+.WGreen(WGreen),
+.NLRed(NLRed),
+.NLYellow(NLYellow),
+.NLGreen(NLGreen),
+.SLRed(SLRed),
+.SLYellow(SLYellow),
+.SLGreen(SLGreen),
+.Na(Na),
+.Nb(Nb),
+.Sa(Sa),
+.Sb(Sb),
+.Ea(Ea),
+.Eb(Eb),
+.Wa(Wa),
+.Wb(Wb)
+,.intersectionCurrentState(intersectionCurrentState),
+.NTrafficLightCounter(NTrafficLightCounter),
+.STrafficLightCounter(STrafficLightCounter),
+.ETrafficLightCounter(ETrafficLightCounter),
+.WTrafficLightCounter(WTrafficLightCounter),
+.NLTrafficLightCounter(NLTrafficLightCounter),
+.SLTrafficLightCounter(SLTrafficLightCounter),
+.NLightState(NLightState),
+.SLightState(SLightState),
+.ELightState(ELightState),
+.WLightState(WLightState),
+.NLLightState(NLLightState),
+.SLLightState(SLLightState),
+.NYellowReset(NYellowReset),.NYellowTrigger(NYellowTrigger),.NGreenReset(NGreenReset),.NGreenTrigger(NGreenTrigger),
+.SYellowReset(SYellowReset),.SYellowTrigger(SYellowTrigger),.SGreenReset(SGreenReset),.SGreenTrigger(SGreenTrigger),
+.EYellowReset(EYellowReset),.EYellowTrigger(EYellowTrigger),.EGreenReset(EGreenReset),.EGreenTrigger(EGreenTrigger),
+.WYellowReset(WYellowReset),.WYellowTrigger(WYellowTrigger),.WGreenReset(WGreenReset),.WGreenTrigger(WGreenTrigger),
+.NLYellowReset(NLYellowReset),.NLYellowTrigger(NLYellowTrigger),.NLGreenReset(NLGreenReset),.NLGreenTrigger(NLGreenTrigger),
+.SLYellowReset(SLYellowReset),.SLYellowTrigger(SLYellowTrigger),.SLGreenReset(SLGreenReset),.SLGreenTrigger(SLGreenTrigger),
+.NSignal(NSignal),
+.SSignal(SSignal),
+.ESignal(ESignal),
+.WSignal(WSignal),
+.NLSignal(NLSignal),
+.SLSignal(SLSignal),
+.Intersectiondelay(Intersectiondelay),
+.delayctr(delayctr),
+.NCrossWalkButton(NCrossWalkButton),
+.SCrossWalkButton(SCrossWalkButton),
+.ECrossWalkButton(ECrossWalkButton),
+.WCrossWalkButton(WCrossWalkButton),
+.NCrossWalkLightTrigger(NCrossWalkLightTrigger),
+.SCrossWalkLightTrigger(SCrossWalkLightTrigger),
+.ECrossWalkLightTrigger(ECrossWalkLightTrigger),
+.WCrossWalkLightTrigger(WCrossWalkLightTrigger),
+.CrossWalkDelay(CrossWalkDelay),
+.CrossWalkCtr(CrossWalkCtr),
+.NPressed(NPressed),
+.SPressed(SPressed),
+.EPressed(EPressed),
+.WPressed(WPressed),
+.NCWcounter(NCWcounter),
+.NisButtonPressed(NisButtonPressed),
+.SCWcounter(SCWcounter),
+.SisButtonPressed(SisButtonPressed),
+.ECWcounter(ECWcounter),
+.EisButtonPressed(EisButtonPressed),
+.WCWcounter(WCWcounter),
+.WisButtonPressed(WisButtonPressed),
+.inputStorage(inputStorage)
+);
 
 parameter ClockPeriod = 10;
 initial CLK=1'b0;
 always #(ClockPeriod/2) CLK = ~CLK;
 initial begin
-RST=1; NSTraffic=0; EWTraffic=0;
-#10; RST=0; #10;
-NSTraffic=1; EWTraffic=1;#20;
-NSTraffic=0;#120;
-NSTraffic=1;#10;
-EWTraffic=0;#20;
+
+RST=1; NTraffic=0; STraffic=0; ETraffic=0; WTraffic=0; NLTraffic=0; SLTraffic=0; NCrossWalkButton=0; SCrossWalkButton=0; ECrossWalkButton=0; WCrossWalkButton=0;
+#10; RST=0; #30;
+NTraffic=1; STraffic=1; ETraffic=1; WTraffic=1; #20;
+NCrossWalkButton=1; SCrossWalkButton=1;#5;
+NCrossWalkButton=0; SCrossWalkButton=0;
+
+NTraffic=0; STraffic=0; #200;
+NTraffic=1; STraffic=1; #10;
+ETraffic=0; WTraffic=0; #20;
 end
     
 endmodule

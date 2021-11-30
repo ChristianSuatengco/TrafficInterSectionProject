@@ -1,0 +1,86 @@
+module CrossWalkState(input NCrossWalkButton, SCrossWalkButton, ECrossWalkButton, WCrossWalkButton,  //These are the 4 crosswalks that could have a button press
+                      input [2:0 ]CurrentState, 
+                      input CLK, RST,
+                      output reg NCrossWalkLightTrigger, SCrossWalkLightTrigger, ECrossWalkLightTrigger, WCrossWalkLightTrigger,        //Triggers that send a signal to turn the crosswalk ON
+                      output reg CrossWalkDelay,                                                                                        //Delay to prevent interseciton state from changing while crosswalk is active
+                      output reg [4:0] CrossWalkCtr,
+                      output reg NPressed, SPressed, EPressed, WPressed);                                                               //Holders for the CrossWalkButton
+                      
+                      always @(posedge CLK or posedge RST) begin
+                      
+                      if(NCrossWalkLightTrigger || SCrossWalkLightTrigger || ECrossWalkLightTrigger || WCrossWalkLightTrigger)begin
+                      NCrossWalkLightTrigger <= 1'b0; SCrossWalkLightTrigger <= 1'b0; ECrossWalkLightTrigger <= 1'b0; WCrossWalkLightTrigger <= 1'b0;
+                      end
+                      
+                      if(RST)begin
+                      NCrossWalkLightTrigger <= 1'b0; SCrossWalkLightTrigger <= 1'b0; ECrossWalkLightTrigger <= 1'b0; WCrossWalkLightTrigger <= 1'b0;
+                      CrossWalkDelay <= 1'b0; CrossWalkCtr <= 5'b01111;
+                      NPressed <= 1'b0; SPressed <= 1'b0; EPressed <= 1'b0; WPressed <= 1'b0;
+                      end
+                      
+                      if(CrossWalkDelay == 1)begin
+                      if(CrossWalkCtr == 0) begin
+                      CrossWalkDelay <= 0;
+                      CrossWalkCtr <= 5'b01111;
+                      end
+                      else begin
+                      CrossWalkCtr <= CrossWalkCtr - 1;
+                      end
+                      end
+                      
+                      else begin
+                      case(CurrentState)
+                      
+                      3'b000:begin
+                      if(NPressed)begin
+                      NCrossWalkLightTrigger <= 1; 
+                      CrossWalkDelay <= 1;
+                      NPressed <= 0;
+                        end
+                      if(SPressed)begin
+                      SCrossWalkLightTrigger <= 1; 
+                      CrossWalkDelay <= 1;
+                      SPressed <= 0;
+                        end
+                      end
+                      
+                      3'b010:begin
+                      if(EPressed)begin
+                      ECrossWalkLightTrigger <= 1; 
+                      CrossWalkDelay <= 1;
+                      EPressed <=0;
+                        end
+                      if(WPressed)begin
+                      WCrossWalkLightTrigger <= 1; 
+                      CrossWalkDelay <= 1;
+                      WPressed <=0;
+                        end
+                      end
+                      
+                      3'b001:begin
+                      if(NPressed)begin
+                      NCrossWalkLightTrigger <= 1; 
+                      CrossWalkDelay <= 1;
+                      NPressed <= 0;
+                        end
+                      end
+                      
+                      3'b011:begin
+                      if(SPressed)begin
+                      SCrossWalkLightTrigger <= 1; 
+                      CrossWalkDelay <= 1;
+                      SPressed <= 0;
+                      end
+                      end
+                      
+                      3'b100:begin
+                      end
+                       
+                      endcase
+                      end
+                      end
+                      always@(posedge NCrossWalkButton) NPressed <= 1;
+                      always@(posedge SCrossWalkButton) SPressed <= 1;
+                      always@(posedge ECrossWalkButton) EPressed <= 1;
+                      always@(posedge WCrossWalkButton) WPressed <= 1;
+endmodule

@@ -1,5 +1,5 @@
-module CrossWalkLED (input ButtonPressed, CLK, RST,
-		     output reg [7:0] a,b,
+module CrossWalkLED (input ButtonPressed, CLK, RST, //Needed
+		     output reg [7:0] a,b, //Needed
 output reg [4:0] counter,
 output reg isButtonPressed);
 

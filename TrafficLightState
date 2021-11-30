@@ -1,20 +1,43 @@
-module TrafficLightState(input OtherRed1, OtherRed2, GreenTrigger, YellowTrigger, CLK, RST,
-                        output reg[1:0] signal,
-                        output reg CurrentYellowReset, CurrentGreenReset,
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 11/12/2021 02:45:18 AM
+// Design Name: 
+// Module Name: TrafficLightState
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module TrafficLightState(input OtherRed1, OtherRed2, OtherRed3, GreenTrigger, YellowTrigger, CLK, RST, 
+                        output reg[1:0] signal,                                                         //Signal is whats passed to the stoplight to change the colors
+                        output reg CurrentYellowReset, CurrentGreenReset,                               //These Loop Around to the Intersection module
                         output reg [3:0] counter,
                         output reg [1:0] state);
                         parameter s0 = 2'b00, s1= 2'b01, s2=2'b10;
                         reg [3:0] ctr = 0;
                         
                         always@(posedge CLK or posedge RST) begin
+                        
                         if(RST)begin
-                            state <= s2; signal<= 2'b10; CurrentYellowReset <= 0; CurrentGreenReset <= 0;
+                            state <= s2; signal<= 2'b10; CurrentYellowReset <= 0; CurrentGreenReset <= 0; //Initialize The Outputs
                         end
                         else begin
-                        if(OtherRed1 && OtherRed2 && GreenTrigger)begin
+                        if(OtherRed1 && OtherRed2 && OtherRed3 && GreenTrigger)begin                //If all 4 conditions are met, then the light should be green
                         state <= s0;
                         end
-                        if(!YellowTrigger) begin
+                        if(!YellowTrigger) begin                                                    //Counter with the condition being YellowTrigger begin 1 to activate counter
                         ctr<=0;
                         end
                         else begin
@@ -27,17 +50,17 @@ module TrafficLightState(input OtherRed1, OtherRed2, GreenTrigger, YellowTrigger
                         end
                         end
                         
-                        always @(ctr)begin
+                        always @(ctr)begin                                                          //Interaction with the counter
                         counter <= ctr;
                         case(ctr)
                         2:begin
-                        state <= s1;
+                        state <= s1;                                                                //When the counter hits 2, Change the state to 2 ( Yellow )
                         end
                         8:begin
-                        CurrentYellowReset <= 1;
+                        CurrentYellowReset <= 1;                                                    //Reset the Yellow Trigger int he intersection at 8
                         end
                         9:begin
-                        state <= s2;
+                        state <= s2;                                                                //When the counter hits 9, Change the state to 2 ( Red ) 
                         end
                         endcase
                         end
@@ -45,16 +68,16 @@ module TrafficLightState(input OtherRed1, OtherRed2, GreenTrigger, YellowTrigger
                         
                         always @(state)
                         case(state)
-                        s0:begin
+                        s0:begin                                                                    //State s0 Is Green
                         signal <= 2'b00;
                         CurrentGreenReset <= 1;
                         end
                         s1:begin
-                        signal <= 2'b01;
+                        signal <= 2'b01;                                                            //State s1 Is Yellow
                         CurrentGreenReset <= 0;
                         end
                         s2:begin
-                        signal <= 2'b10;
+                        signal <= 2'b10;                                                            //State s2 Is Red
                         CurrentYellowReset <= 0;
                         end
                         endcase

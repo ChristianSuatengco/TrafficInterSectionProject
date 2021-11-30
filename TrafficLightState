@@ -20,9 +20,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module TrafficLightState(input OtherRed1, OtherRed2, OtherRed3, GreenTrigger, YellowTrigger, CLK, RST, 
-                        output reg[1:0] signal,                                                         //Signal is whats passed to the stoplight to change the colors
-                        output reg CurrentYellowReset, CurrentGreenReset,                               //These Loop Around to the Intersection module
+module TrafficLightState(input OtherRed1, OtherRed2, OtherRed3, GreenTrigger, YellowTrigger, CLK, RST, //Needed
+                        output reg[1:0] signal,                                                         //Signal is whats passed to the stoplight to change the colors Needed
+                        output reg CurrentYellowReset, CurrentGreenReset,                               //These Loop Around to the Intersection module Needed
                         output reg [3:0] counter,
                         output reg [1:0] state);
                         parameter s0 = 2'b00, s1= 2'b01, s2=2'b10;

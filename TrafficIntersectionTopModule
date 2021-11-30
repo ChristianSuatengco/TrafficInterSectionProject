@@ -272,7 +272,7 @@ CrossWalkState UUT (
 CrossWalkLED NLed (
 .CLK(CLK),
 .RST(RST),
-.ButtonPressed(NPressed),
+.ButtonPressed(NCrossWalkLightTrigger),
 .a(Na),
 .b(Nb),
 .counter(NCWcounter),
@@ -281,7 +281,7 @@ CrossWalkLED NLed (
 CrossWalkLED SLed (
 .CLK(CLK),
 .RST(RST),
-.ButtonPressed(SPressed),
+.ButtonPressed(SCrossWalkLightTrigger),
 .a(Sa),
 .b(Sb),
 .counter(SCWcounter),
@@ -290,7 +290,7 @@ CrossWalkLED SLed (
 CrossWalkLED ELed (
 .CLK(CLK),
 .RST(RST),
-.ButtonPressed(EPressed),
+.ButtonPressed(ECrossWalkLightTrigger),
 .a(Ea),
 .b(Eb),
 .counter(ECWcounter),
@@ -299,7 +299,7 @@ CrossWalkLED ELed (
 CrossWalkLED WLed (
 .CLK(CLK),
 .RST(RST),
-.ButtonPressed(WPressed),
+.ButtonPressed(WCrossWalkLightTrigger),
 .a(Wa),
 .b(Wb),
 .counter(WCWcounter),

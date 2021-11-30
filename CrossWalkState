@@ -1,8 +1,8 @@
-module CrossWalkState(input NCrossWalkButton, SCrossWalkButton, ECrossWalkButton, WCrossWalkButton,  //These are the 4 crosswalks that could have a button press
-                      input [2:0 ]CurrentState, 
-                      input CLK, RST,
-                      output reg NCrossWalkLightTrigger, SCrossWalkLightTrigger, ECrossWalkLightTrigger, WCrossWalkLightTrigger,        //Triggers that send a signal to turn the crosswalk ON
-                      output reg CrossWalkDelay,                                                                                        //Delay to prevent interseciton state from changing while crosswalk is active
+module CrossWalkState(input NCrossWalkButton, SCrossWalkButton, ECrossWalkButton, WCrossWalkButton,  //These are the 4 crosswalks that could have a button press Needed
+                      input [2:0 ]CurrentState, //Needed
+                      input CLK, RST, //Needed
+                      output reg NCrossWalkLightTrigger, SCrossWalkLightTrigger, ECrossWalkLightTrigger, WCrossWalkLightTrigger,        //Triggers that send a signal to turn the crosswalk ON Needed
+                      output reg CrossWalkDelay,                                                                                        //Delay to prevent interseciton state from changing while crosswalk is active Needed
                       output reg [4:0] CrossWalkCtr,
                       output reg NPressed, SPressed, EPressed, WPressed);                                                               //Holders for the CrossWalkButton
                       

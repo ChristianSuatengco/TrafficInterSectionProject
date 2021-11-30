@@ -1,42 +1,96 @@
-module TrafficIntersectionTop(input NTraffic, STraffic, ETraffic, WTraffic, CLK, RST,
-                              //input NCrossWalkButton, SCrossWalkButton, ECrossWalkButton, WCrossWalkButton,
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 11/15/2021 05:06:12 PM
+// Design Name: 
+// Module Name: TrafficIntersectionTop
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module TrafficIntersectionTop(input NTraffic, STraffic, ETraffic, WTraffic, NLTraffic, SLTraffic, CLK, RST,
+                              input NCrossWalkButton, SCrossWalkButton, ECrossWalkButton, WCrossWalkButton,
+                              output wire NLRed, NLYellow, NLGreen,
 				              output wire NRed, NYellow, NGreen,
                               output wire SRed, SYellow, SGreen,
+                              output wire SLRed, SLYellow, SLGreen,
                               output wire ERed, EYellow, EGreen,
                               output wire WRed, WYellow, WGreen,
-//output wire NCrossWalkLightTrigger, SCrossWalkLightTrigger, ECrossWalkLightTrigger, WCrossWalkLightTrigger,
+
+output wire NCrossWalkLightTrigger, SCrossWalkLightTrigger, ECrossWalkLightTrigger, WCrossWalkLightTrigger,
+output wire NPressed, SPressed, EPressed, WPressed,
+output wire [4:0] CrossWalkCtr,
 output wire CrossWalkDelay,
-output wire intersectionCurrentState,
+output wire [7:0] Na,Nb,
+output wire [7:0] Sa,Sb,
+output wire [7:0] Ea,Eb,
+output wire [7:0] Wa,Wb,
+output wire [4:0] NCWcounter,
+output wire [4:0] SCWcounter,
+output wire [4:0] ECWcounter,
+output wire [4:0] WCWcounter,
+output wire NisButtonPressed,
+output wire SisButtonPressed,
+output wire EisButtonPressed,
+output wire WisButtonPressed,
+output wire [2:0] intersectionCurrentState,
 output wire [3:0] NTrafficLightCounter,
 output wire [3:0] STrafficLightCounter,
 output wire [3:0] ETrafficLightCounter,
 output wire [3:0] WTrafficLightCounter,
+output wire [3:0] NLTrafficLightCounter,
+output wire [3:0] SLTrafficLightCounter,
 output wire [1:0] NLightState,
 output wire [1:0] SLightState,
 output wire [1:0] ELightState,
 output wire [1:0] WLightState,
+output wire [1:0] NLLightState,
+output wire [1:0] SLLightState,
 output wire NYellowReset,
 output wire SYellowReset,
 output wire EYellowReset,
 output wire WYellowReset,
+output wire NLYellowReset,
+output wire SLYellowReset,
 output wire NGreenReset,
 output wire SGreenReset,
 output wire EGreenReset,
 output wire WGreenReset,
+output wire NLGreenReset,
+output wire SLGreenReset,
 output wire NYellowTrigger,
 output wire SYellowTrigger,
 output wire EYellowTrigger,
 output wire WYellowTrigger,
+output wire NLYellowTrigger,
+output wire SLYellowTrigger,
 output wire NGreenTrigger,
 output wire SGreenTrigger,
 output wire EGreenTrigger,
 output wire WGreenTrigger,
+output wire NLGreenTrigger,
+output wire SLGreenTrigger,
 output wire [1:0] NSignal,
 output wire [1:0] SSignal,
 output wire [1:0] ESignal,
 output wire [1:0] WSignal,
+output wire [1:0] NLSignal,
+output wire [1:0] SLSignal,
 output wire Intersectiondelay,
-output wire [6:0] delayctr);
+output wire [6:0] delayctr,
+output wire [5:0] inputStorage);
 
 
 TrafficInterSection DUT (
@@ -44,21 +98,27 @@ TrafficInterSection DUT (
 .SYellowReset(SYellowReset),.SYellowTrigger(SYellowTrigger),.SGreenReset(SGreenReset),.SGreenTrigger(SGreenTrigger),
 .EYellowReset(EYellowReset),.EYellowTrigger(EYellowTrigger),.EGreenReset(EGreenReset),.EGreenTrigger(EGreenTrigger),
 .WYellowReset(WYellowReset),.WYellowTrigger(WYellowTrigger),.WGreenReset(WGreenReset),.WGreenTrigger(WGreenTrigger),
+.NLYellowReset(NLYellowReset),.NLYellowTrigger(NLYellowTrigger),.NLGreenReset(NLGreenReset),.NLGreenTrigger(NLGreenTrigger),
+.SLYellowReset(NLYellowReset),.SLYellowTrigger(SLYellowTrigger),.SLGreenReset(SLGreenReset),.SLGreenTrigger(SLGreenTrigger),
 .NTraffic(NTraffic),
 .STraffic(STraffic),
 .ETraffic(ETraffic),
 .WTraffic(WTraffic),
+.NLTraffic(NLTraffic),
+.SLTraffic(SLTraffic),
 .CLK(CLK),
 .RST(RST),
 .CurrentState(intersectionCurrentState),
 .Intersectiondelay(Intersectiondelay),
 .delayctr(delayctr),
-.CrossWalkDelay(CrossWalkDelay));
+.CrossWalkDelay(CrossWalkDelay),
+.inputStorage(inputStorage));
 
 
 TrafficLightState NL (
 .OtherRed1(ERed),
 .OtherRed2(WRed),
+.OtherRed3(SLRed),
 .GreenTrigger(NGreenTrigger),
 .YellowTrigger(NYellowTrigger),
 .CLK(CLK),
@@ -73,6 +133,7 @@ TrafficLightState NL (
 TrafficLightState SL (
 .OtherRed1(ERed),
 .OtherRed2(WRed),
+.OtherRed3(NLRed),
 .GreenTrigger(SGreenTrigger),
 .YellowTrigger(SYellowTrigger),
 .CLK(CLK),
@@ -87,6 +148,7 @@ TrafficLightState SL (
 TrafficLightState EL (
 .OtherRed1(NRed),
 .OtherRed2(SRed),
+.OtherRed3(NLRed),
 .GreenTrigger(EGreenTrigger),
 .YellowTrigger(EYellowTrigger),
 .CLK(CLK),
@@ -100,6 +162,7 @@ TrafficLightState EL (
 TrafficLightState WL (
 .OtherRed1(NRed),
 .OtherRed2(SRed),
+.OtherRed3(SLRed),
 .GreenTrigger(WGreenTrigger),
 .YellowTrigger(WYellowTrigger),
 .CLK(CLK),
@@ -109,6 +172,34 @@ TrafficLightState WL (
 .CurrentGreenReset(WGreenReset),
 .counter(WTrafficLightCounter),
 .state(WLightState));
+
+TrafficLightState NLL (
+.OtherRed1(ERed),
+.OtherRed2(WRed),
+.OtherRed3(SRed),
+.GreenTrigger(NLGreenTrigger),
+.YellowTrigger(NLYellowTrigger),
+.CLK(CLK),
+.RST(RST),
+.signal(NLSignal),
+.CurrentYellowReset(NLYellowReset),
+.CurrentGreenReset(NLGreenReset),
+.counter(NLTrafficLightCounter),
+.state(NLLightState));
+
+TrafficLightState SLL (
+.OtherRed1(ERed),
+.OtherRed2(WRed),
+.OtherRed3(NRed),
+.GreenTrigger(SLGreenTrigger),
+.YellowTrigger(SLYellowTrigger),
+.CLK(CLK),
+.RST(RST),
+.signal(SLSignal),
+.CurrentYellowReset(SLYellowReset),
+.CurrentGreenReset(SLGreenReset),
+.counter(SLTrafficLightCounter),
+.state(SLLightState));
 
 
 TrafficLightSignals NLS (
@@ -142,4 +233,75 @@ TrafficLightSignals WLS (
 .green(WGreen),
 .RST(RST),
 .CLK(CLK));
+
+TrafficLightSignals NLLS (
+.signal(NLSignal),
+.red(NLRed),
+.yellow(NLYellow),
+.green(NLGreen),
+.RST(RST),
+.CLK(CLK));
+
+TrafficLightSignals SLLS (
+.signal(SLSignal),
+.red(SLRed),
+.yellow(SLYellow),
+.green(SLGreen),
+.RST(RST),
+.CLK(CLK));
+
+CrossWalkState UUT (
+.NCrossWalkButton(NCrossWalkButton),
+.SCrossWalkButton(SCrossWalkButton),
+.ECrossWalkButton(ECrossWalkButton),
+.WCrossWalkButton(WCrossWalkButton),
+.NCrossWalkLightTrigger(NCrossWalkLightTrigger),
+.SCrossWalkLightTrigger(SCrossWalkLightTrigger),
+.ECrossWalkLightTrigger(ECrossWalkLightTrigger),
+.WCrossWalkLightTrigger(WCrossWalkLightTrigger),
+.CLK(CLK),
+.RST(RST),
+.CurrentState(intersectionCurrentState),
+.CrossWalkDelay(CrossWalkDelay),
+.CrossWalkCtr(CrossWalkCtr),
+.NPressed(NPressed),
+.SPressed(SPressed),
+.EPressed(EPressed),
+.WPressed(WPressed));
+
+CrossWalkLED NLed (
+.CLK(CLK),
+.RST(RST),
+.ButtonPressed(NPressed),
+.a(Na),
+.b(Nb),
+.counter(NCWcounter),
+.isButtonPressed(NisButtonPressed));
+
+CrossWalkLED SLed (
+.CLK(CLK),
+.RST(RST),
+.ButtonPressed(SPressed),
+.a(Sa),
+.b(Sb),
+.counter(SCWcounter),
+.isButtonPressed(SisButtonPressed));
+
+CrossWalkLED ELed (
+.CLK(CLK),
+.RST(RST),
+.ButtonPressed(EPressed),
+.a(Ea),
+.b(Eb),
+.counter(ECWcounter),
+.isButtonPressed(EisButtonPressed));
+
+CrossWalkLED WLed (
+.CLK(CLK),
+.RST(RST),
+.ButtonPressed(WPressed),
+.a(Wa),
+.b(Wb),
+.counter(WCWcounter),
+.isButtonPressed(WisButtonPressed));
 endmodule

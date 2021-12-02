@@ -19,18 +19,44 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+/*
+A State Machine to manage the state of the intersection to be passed onto other module such as the Crosswalk
 
+Key: N=North, S=South, E=East, W=West, NL=NorthLeft, SL=SouthLeft
+
+Required Inputs &  Outputs
+
+YellowTriggers - Sends a signal to the traffic light state to change the light to yellow
+GreenTriggers - Sends a signal to the traffic light state to change the light to green
+YellowReset - Resets the YellowTriggers back to 0 after the light has changed to yellow
+GreenReset - Resets the GreenTriggers back to 0 after the light has changed to green
+CrossWalkDelay - A delay signal that is active when a crosswalk button has recently been pressed
+Current State - The current state of the state machine for the intersection 
+
+Registers to hold values: 
+IntersectionDelay - A delay signal that is active when the state has currently changed
+Delayctr - A counter that counts down when the IntersectionDelay is active that resets IntersectionDelay when it reaches 0
+InputStorage - A vector thats holds that values of all 6 traffic inputs to use for cases
+
+Manual Inputs : NTraffic, STraffic, ETraffic, WTraffic, NLTraffic, SLTraffic 
+
+The way the state machine works is that one every clock cycle, 
+if first checks if the state has recently changed and if the crosswalk was recently become active then,
+it checks the input to see if it meets the requirement to transition to another state.
+If it can then it changes state and send signals (Makes the Yellow/Green Triggers Active) to the appropriate light to turn them yellow or green 
+and makes the IntersectionDelay active
+
+*/
 module TrafficInterSection(
                input CLK, RST, //Needed
                //Resets affect the trigger that changes a stoplight color
-               input NLYellowReset, NLGreenReset, SLYellowReset, SLGreenReset, //NL=NorthLeftTurn SL=SouthLeftTurn Needed
-			   input NYellowReset, NGreenReset, SYellowReset, SGreenReset, //N=North S=South Needed
-			   input EYellowReset, EGreenReset, WYellowReset, WGreenReset, //E=East W=West Needed
+               input NLYellowReset, NLGreenReset, SLYellowReset, SLGreenReset, //Needed
+			   input NYellowReset, NGreenReset, SYellowReset, SGreenReset, //Needed
+			   input EYellowReset, EGreenReset, WYellowReset, WGreenReset, //Needed
 			   
 			   input NTraffic, STraffic, ETraffic, WTraffic, NLTraffic, SLTraffic, //6 traffic car inputs //Needed
 			   input CrossWalkDelay, //Needed
 			   
-			   //Triggers send a signal that change the stoplight color
 			   output reg NLYellowTrigger, NLGreenTrigger, SLYellowTrigger, SLGreenTrigger, //Needed
 			   output reg NYellowTrigger, NGreenTrigger, SYellowTrigger, SGreenTrigger, //Needed
 			   output reg EYellowTrigger, EGreenTrigger, WYellowTrigger, WGreenTrigger, //Needed
@@ -45,7 +71,8 @@ module TrafficInterSection(
 
                             always @(posedge CLK or posedge RST) begin	
                             inputStorage <= {NTraffic, STraffic, ETraffic, WTraffic, NLTraffic, SLTraffic};
-                            //Begin Reset of any Light Triggers
+                            
+			    //Begin Reset of any Light Triggers
                             if(NLYellowReset)begin
                             NLYellowTrigger <= 1'b0;
                             end	
@@ -124,6 +151,14 @@ module TrafficInterSection(
                                 else begin
                                                                                 //First Case line is based on the current state
                                                                                 //Second Case line is based on the input when the state change happens
+/*
+Description of each state:
+s0: 3'b000 - The North and South Traffic Lights are Green and all others are Red
+s1: 3'b001 - The East and West Traffic Lights are Green and all others are Red
+s2: 3'b010 - The North and NorthLeft Traffic Lights are Green and all others are Red
+s3: 3'b011 - The South and SouthLeft Traffic Lights are Green and all others are Red
+s4: 3'b100 - The NorthLeft and SouthLeft Traffic Lights are Green and all others are Red
+*/
                                	   case(state)
                                     s0: begin                                   //North, South Green | East, West, North Left, South Left Red
                                     casex(inputStorage)                         

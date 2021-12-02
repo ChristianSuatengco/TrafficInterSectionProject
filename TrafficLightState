@@ -19,6 +19,10 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+/*
+A State Machine that is the transition from Green to Yellow to Red once certain condditions are met to move to the next state
+
+*/
 
 module TrafficLightState(input OtherRed1, OtherRed2, OtherRed3, GreenTrigger, YellowTrigger, CLK, RST, //Needed
                         output reg[1:0] signal,                                                         //Signal is whats passed to the stoplight to change the colors Needed
